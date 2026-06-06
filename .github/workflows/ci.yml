@@ -33,5 +33,9 @@ jobs:
           if [ ${#files[@]} -eq 0 ]; then
             echo "No formula or cask files to audit"
           else
-            brew audit --strict --online "${files[@]}"
+            brew tap computeralex92/tap "$PWD"
+            for f in "${files[@]}"; do
+              name=$(basename "$f" .rb)
+              brew audit --strict --online "computeralex92/tap/$name"
+            done
           fi
