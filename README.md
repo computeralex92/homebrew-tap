@@ -23,6 +23,8 @@ brew install computeralex92/tap/fleetctl
 |---------|-------------|
 | `fleetctl` | CLI tool for Fleet Device Management |
 
-## Disclaimer
+## Disclaimers
+
+This repository is a personal project and is **not affiliated with, endorsed by, or sponsored by Fleet Device Management Inc.** The `fleetctl` formula references the official FleetDM binary, which is the property of its respective owners.
 
 This repository was created with assistance from [OpenCode](https://opencode.ai), an AI-powered coding assistant.
