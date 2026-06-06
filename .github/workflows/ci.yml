@@ -17,14 +17,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Set up git
-        uses: Homebrew/actions/git-user-config@main
-
       - name: Set up Homebrew
         id: set-up-homebrew
         uses: Homebrew/actions/setup-homebrew@main
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Register local checkout as a tap
         run: |
