@@ -1,0 +1,37 @@
+name: CI
+on:
+  pull_request:
+    paths:
+      - 'Formula/*.rb'
+      - 'Casks/*.rb'
+  push:
+    branches: [main]
+    paths:
+      - 'Formula/*.rb'
+      - 'Casks/*.rb'
+
+jobs:
+  test:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run brew style
+        run: |
+          shopt -s nullglob
+          files=( Formula/*.rb Casks/*.rb )
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No formula or cask files to check"
+          else
+            brew style "${files[@]}"
+          fi
+
+      - name: Run brew audit
+        run: |
+          shopt -s nullglob
+          files=( Formula/*.rb Casks/*.rb )
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No formula or cask files to audit"
+          else
+            brew audit --strict --online "${files[@]}"
+          fi
