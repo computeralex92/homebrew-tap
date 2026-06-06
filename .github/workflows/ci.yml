@@ -14,15 +14,23 @@ on:
 jobs:
   test:
     runs-on: macos-latest
+    env:
+      GIT_TERMINAL_PROMPT: "0"
+      HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v6
 
       - name: Set up Homebrew
         id: set-up-homebrew
         uses: Homebrew/actions/setup-homebrew@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up git
-        uses: Homebrew/actions/git-user-config@main
+      - name: Register local checkout as a tap
+        run: |
+          tap_dir="$(brew --repository)/Library/Taps/computeralex92/homebrew-tap"
+          mkdir -p "$tap_dir/Formula"
+          cp Formula/*.rb "$tap_dir/Formula/" 2>/dev/null || true
 
       - name: Run brew style
         run: |
@@ -41,7 +49,6 @@ jobs:
           if [ ${#files[@]} -eq 0 ]; then
             echo "No formula or cask files to audit"
           else
-            brew tap computeralex92/tap "$PWD"
             for f in "${files[@]}"; do
               name=$(basename "$f" .rb)
               brew audit --strict --online "computeralex92/tap/$name"
@@ -57,6 +64,7 @@ jobs:
           else
             for f in "${files[@]}"; do
               name=$(basename "$f" .rb)
+              brew install "computeralex92/tap/$name"
               brew test "computeralex92/tap/$name"
             done
           fi
