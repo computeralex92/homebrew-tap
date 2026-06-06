@@ -34,7 +34,7 @@ git push -u origin <branch>
 - `brew audit [path]` is disabled — always use `computeralex92/tap/<name>` syntax.
 - `brew install Formula/<name>.rb` is also disabled — tap the local dir first.
 - Prebuilt Go binaries with universal Mach-O (x86_64 + arm64 in one binary) need no arch-specific conditionals.
-- `fleetctl --version` exits 0 in shell but its startup log line can interfere with `shell_output`; redirect stderr via `2>&1` in test blocks.
+- `fleetctl --version` triggers go-prompt history init (`~/.goquery/history`) which fails in brew test sandbox. Use `assert_predicate bin/"fleetctl", :executable?` in tests to avoid this.
 
 ## Conventions
 

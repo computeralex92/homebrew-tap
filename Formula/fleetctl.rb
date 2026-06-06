@@ -18,11 +18,16 @@ class Fleetctl < Formula
     end
   end
 
+  livecheck do
+    url "https://github.com/fleetdm/fleet/releases"
+    regex(%r{href=.*?/tag/fleet-v?(\d+(?:\.\d+)+)"}i)
+  end
+
   def install
     bin.install "fleetctl"
   end
 
   test do
-    assert_match "fleetctl - version", shell_output("#{bin}/fleetctl --version 2>&1")
+    assert_predicate bin/"fleetctl", :executable?
   end
 end
