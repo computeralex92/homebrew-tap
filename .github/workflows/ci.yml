@@ -21,6 +21,9 @@ jobs:
         id: set-up-homebrew
         uses: Homebrew/actions/setup-homebrew@main
 
+      - name: Set up git
+        uses: Homebrew/actions/git-users@main
+
       - name: Run brew style
         run: |
           shopt -s nullglob
