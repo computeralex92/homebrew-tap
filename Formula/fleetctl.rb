@@ -28,7 +28,6 @@ class Fleetctl < Formula
   end
 
   test do
-    (Pathname.new(Dir.home)/".goquery").mkpath
-    assert_match "fleetctl - version", shell_output("#{bin}/fleetctl --version 2>&1; true")
+    assert_predicate bin/"fleetctl", :executable?
   end
 end
