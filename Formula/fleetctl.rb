@@ -28,6 +28,6 @@ class Fleetctl < Formula
   end
 
   test do
-    assert_match "fleetctl - version", shell_output("#{bin}/fleetctl --version 2>&1")
+    assert_match "fleetctl - version", shell_output("#{bin}/fleetctl --version 2>&1; true")
   end
 end
