@@ -24,10 +24,13 @@ jobs:
         id: set-up-homebrew
         uses: Homebrew/actions/setup-homebrew@main
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Register local checkout as a tap
-        run: brew tap computeralex92/tap "$PWD"
+        run: |
+          tap_dir="$(brew --repository)/Library/Taps/computeralex92/homebrew-tap"
+          mkdir -p "$tap_dir/Formula"
+          cp Formula/*.rb "$tap_dir/Formula/" 2>/dev/null || true
 
       - name: Run brew style
         run: |
