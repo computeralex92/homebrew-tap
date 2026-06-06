@@ -22,7 +22,7 @@ jobs:
         uses: Homebrew/actions/setup-homebrew@main
 
       - name: Set up git
-        uses: Homebrew/actions/git-users@main
+        uses: Homebrew/actions/git-user-config@main
 
       - name: Run brew style
         run: |
