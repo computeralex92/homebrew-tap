@@ -1,5 +1,7 @@
 # computeralex92/homebrew-tap
 
+[![CI](https://github.com/computeralex92/homebrew-tap/actions/workflows/ci.yml/badge.svg)](https://github.com/computeralex92/homebrew-tap/actions/workflows/ci.yml)
+
 Personal Homebrew tap.
 
 ## Usage
