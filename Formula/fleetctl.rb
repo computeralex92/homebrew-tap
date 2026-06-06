@@ -28,6 +28,8 @@ class Fleetctl < Formula
   end
 
   test do
-    assert_match "fleetctl - version", shell_output("#{bin}/fleetctl --version 2>&1; true")
+    (testpath/".goquery").mkpath
+    output = shell_output("HOME=#{testpath} #{bin}/fleetctl --version 2>&1; true")
+    assert_match "fleetctl - version", output
   end
 end
