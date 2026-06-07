@@ -1,7 +1,6 @@
 class Fleetctl < Formula
   desc "Command-line interface for Fleet Device Management"
   homepage "https://fleetdm.com"
-  version "4.86.1"
   license "MIT"
 
   if OS.mac?
