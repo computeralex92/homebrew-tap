@@ -1,6 +1,9 @@
 # computeralex92/homebrew-tap
 
 [![CI](https://github.com/computeralex92/homebrew-tap/actions/workflows/tests.yml/badge.svg)](https://github.com/computeralex92/homebrew-tap/actions/workflows/tests.yml)
+[![License](https://img.shields.io/github/license/computeralex92/homebrew-tap)](LICENSE)
+[![Last commit](https://img.shields.io/github/last-commit/computeralex92/homebrew-tap)](https://github.com/computeralex92/homebrew-tap/commits/main)
+[![GitHub release](https://img.shields.io/github/v/release/computeralex92/homebrew-tap)](https://github.com/computeralex92/homebrew-tap/releases)
 
 Personal Homebrew tap.
 
