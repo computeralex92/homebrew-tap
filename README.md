@@ -1,6 +1,11 @@
 # computeralex92/homebrew-tap
 
-[![CI](https://github.com/computeralex92/homebrew-tap/actions/workflows/ci.yml/badge.svg)](https://github.com/computeralex92/homebrew-tap/actions/workflows/ci.yml)
+[![CI](https://github.com/computeralex92/homebrew-tap/actions/workflows/tests.yml/badge.svg)](https://github.com/computeralex92/homebrew-tap/actions/workflows/tests.yml)
+[![License](https://img.shields.io/github/license/computeralex92/homebrew-tap)](LICENSE)
+[![Last commit](https://img.shields.io/github/last-commit/computeralex92/homebrew-tap)](https://github.com/computeralex92/homebrew-tap/commits/main)
+[![fleetctl](https://img.shields.io/badge/fleetctl-v4.86.1-2ea44f)](https://github.com/fleetdm/fleet/releases)
+[![Repo size](https://img.shields.io/github/repo-size/computeralex92/homebrew-tap)](https://github.com/computeralex92/homebrew-tap)
+[![Renovate](https://img.shields.io/badge/renovate-enabled-brightgreen?logo=renovate)](https://docs.renovatebot.com)
 
 Personal Homebrew tap.
 
