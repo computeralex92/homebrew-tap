@@ -3,5 +3,16 @@
   "extends": ["config:recommended"],
   "automerge": true,
   "automergeType": "pr",
-  "platformAutomerge": true
+  "platformAutomerge": true,
+  "regexManagers": [
+    {
+      "fileMatch": ["Formula/fleetctl.rb"],
+      "matchStrings": [
+        "version\\s+\"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""
+      ],
+      "depNameTemplate": "fleetdm/fleet",
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "semver"
+    }
+  ]
 }
