@@ -40,7 +40,7 @@ jobs:
 
       - run: brew test-bot --only-setup
 
-      - run: brew audit --except=installed,audit_version --tap=computeralex92/tap
+      - run: brew test-bot --only-tap-syntax
       - name: Base64-encode GITHUB_TOKEN for HOMEBREW_DOCKER_REGISTRY_TOKEN
         id: base64-encode
         if: github.event_name == 'pull_request'
