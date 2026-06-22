@@ -84,7 +84,7 @@ jobs:
       - name: Commit bottle block
         if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && steps.base64-encode.conclusion == 'success'
         run: |
-          if ! git diff --name-only HEAD -- Formula/ | grep -q .; then
+          if ! git status --porcelain Formula/ | grep -q .; then
             echo "No formula changes to commit"
             exit 0
           fi
