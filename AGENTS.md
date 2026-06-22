@@ -8,12 +8,23 @@ Personal Homebrew tap at `computeralex92/homebrew-tap`.
 - CI runs on every PR and on push to `main`. Manual runs via `workflow_dispatch`.
 - Do **not** push directly to `main`.
 
+## Renovate auto-update flow
+
+Formulas build from Go source (single URL + SHA), so Renovate can auto-update.
+
+1. Renovate opens a PR with the version + SHA bump, labeled `pr-pull`.
+2. `tests.yml` runs `brew test-bot` on ARM macOS and Linux, which compiles the formula and builds bottles.
+3. `publish.yml` triggers on the `pr-pull` label and runs `brew pr-pull`, which pulls the bottle artifacts from CI and merges everything into `main` (via a merge commit that includes both the formula change and the bottle revisions).
+4. The PR branch is deleted automatically.
+
 ## Structure
 
 - `Formula/<name>.rb` — formula files (Ruby DSL)
 - `Casks/<name>.rb` — casks (not yet used)
-- `.github/workflows/ci.yml` — CI: style + audit on push/PR touching `Formula/` or `Casks/`
-- `.github/renovate.json` — Renovate config (extends `config:recommended`)
+- `.github/workflows/tests.yml` — CI: brew test-bot on ARM Mac + Linux
+- `.github/workflows/publish.yml` — `brew pr-pull` for labeled PRs
+- `.github/workflows/auto-approve.yml` — auto-approves Renovate PRs
+- `.github/renovate.json` — Renovate config (extends `config:recommended`, adds `pr-pull` label)
 
 ## Local testing
 
@@ -33,13 +44,13 @@ git push -u origin <branch>
 **Known quirks:**
 - `brew audit [path]` is disabled — always use `computeralex92/tap/<name>` syntax.
 - `brew install Formula/<name>.rb` is also disabled — tap the local dir first.
-- Prebuilt Go binaries with universal Mach-O (x86_64 + arm64 in one binary) need no arch-specific conditionals.
+- Only ARM macOS (macos-26) and Linux CI runners are used; Intel macOS was dropped.
+- Go is a build dependency; bottles are built by `brew test-bot` in CI and published via `pr-pull`.
 - `fleetctl --version` triggers go-prompt history init (`~/.goquery/history`) which fails in brew test sandbox. Use `assert_predicate bin/"fleetctl", :executable?` in tests to avoid this.
 
 ## Conventions
 
 - Follow Homebrew's Ruby style: two-space indent, no tabs, no trailing whitespace.
 - Every formula must have `desc`, `homepage`, `url`, `sha256`, `version` (or inferred from URL), and `license`.
-- `url` should point to GitHub releases tarballs or rubygems; prefer source over prebuilt when possible.
-- For Go or Node tools, use the appropriate resource/build patterns (`go_resource`, `resource` blocks).
+- Build from Go source using `depends_on "go" => :build` and `std_go_args`.
 - Keep `brew audit` clean; suppress only unavoidable warnings with an inline comment.
