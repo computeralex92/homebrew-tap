@@ -6,6 +6,11 @@ on:
       - main
   pull_request:
   workflow_dispatch:
+    inputs:
+      formula:
+        description: 'Formula to build and publish bottles for'
+        required: false
+        type: string
 
 jobs:
   test-bot:
@@ -59,8 +64,20 @@ jobs:
           HOMEBREW_DOCKER_REGISTRY_TOKEN: ${{ steps.base64-encode.outputs.token }}
 
       - name: Build and publish bottles
-        if: github.event_name == 'push'
-        run: brew test-bot --only-formulae --root-url=https://ghcr.io/v2/computeralex92/tap --publish
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            FORMULAE=$(git diff --name-only HEAD~1 HEAD -- Formula/ | sed 's|Formula/||;s|\.rb$||')
+          else
+            FORMULAE="${{ inputs.formula }}"
+          fi
+          if [ -z "$FORMULAE" ]; then
+            echo "No formulae to publish"
+            exit 0
+          fi
+          for formula in $FORMULAE; do
+            brew test-bot --only-formulae "$formula" --root-url=https://ghcr.io/v2/computeralex92/tap --publish
+          done
         env:
           HOMEBREW_DOCKER_REGISTRY_TOKEN: ${{ steps.base64-encode.outputs.token }}
 
