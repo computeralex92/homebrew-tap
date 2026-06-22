@@ -82,7 +82,7 @@ jobs:
           HOMEBREW_DOCKER_REGISTRY_TOKEN: ${{ steps.base64-encode.outputs.token }}
 
       - name: Commit bottle block
-        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && steps.base64-encode.conclusion == 'success'
+        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && matrix.os == 'macos-26' && steps.base64-encode.conclusion == 'success'
         run: |
           if ! git status --porcelain Formula/ | grep -q .; then
             echo "No formula changes to commit"
