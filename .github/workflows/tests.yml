@@ -19,8 +19,8 @@ jobs:
     permissions:
       actions: read
       checks: read
-      contents: read
-      packages: read
+      contents: write
+      packages: write
       pull-requests: read
     steps:
       - name: Set up Homebrew
@@ -41,17 +41,25 @@ jobs:
       - run: brew test-bot --only-setup
 
       - run: brew test-bot --only-tap-syntax
+
       - name: Base64-encode GITHUB_TOKEN for HOMEBREW_DOCKER_REGISTRY_TOKEN
         id: base64-encode
-        if: github.event_name == 'pull_request'
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           base64_token=$(echo -n "${TOKEN}" | base64 | tr -d "\n")
           echo "::add-mask::${base64_token}"
           echo "token=${base64_token}" >> "${GITHUB_OUTPUT}"
-      - run: brew test-bot --only-formulae --root-url=https://ghcr.io/v2/computeralex92/tap
+
+      - name: Test formula and build bottles
         if: github.event_name == 'pull_request'
+        run: brew test-bot --only-formulae --root-url=https://ghcr.io/v2/computeralex92/tap
+        env:
+          HOMEBREW_DOCKER_REGISTRY_TOKEN: ${{ steps.base64-encode.outputs.token }}
+
+      - name: Build and publish bottles
+        if: github.event_name == 'push'
+        run: brew test-bot --only-formulae --root-url=https://ghcr.io/v2/computeralex92/tap --publish
         env:
           HOMEBREW_DOCKER_REGISTRY_TOKEN: ${{ steps.base64-encode.outputs.token }}
 
