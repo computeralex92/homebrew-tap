@@ -4,17 +4,17 @@ class Fleetctl < Formula
   license "MIT"
 
   if OS.mac?
-    url "https://github.com/fleetdm/fleet/releases/download/fleet-v4.86.1/fleetctl_v4.86.1_macos.tar.gz"
-    sha256 "d4f7db86dcb60dc241177505819c20619401dbbbd6003c0091a2888e1d921d36"
+    url "https://github.com/fleetdm/fleet/releases/download/fleet-v4.87.0/fleetctl_v4.87.0_macos.tar.gz"
+    sha256 "e120376970999454621c8681dd93e5550a8abc215cdaf0fc829e4fdf6920c721"
   elsif OS.linux?
     if Hardware::CPU.intel?
-      url "https://github.com/fleetdm/fleet/releases/download/fleet-v4.86.1/fleetctl_v4.86.1_linux_amd64.tar.gz"
-      sha256 "0c5b031e5e973e3f8f96307cfdaa55a33a0ab4e7859eee52150bda51572c7349"
+      url "https://github.com/fleetdm/fleet/releases/download/fleet-v4.87.0/fleetctl_v4.87.0_linux_amd64.tar.gz"
+      sha256 "5e66cac64e638653d10408c0cb29a4347777c20f42918c71c44f401dcd5782c9"
     end
 
     if Hardware::CPU.arm?
-      url "https://github.com/fleetdm/fleet/releases/download/fleet-v4.86.1/fleetctl_v4.86.1_linux_arm64.tar.gz"
-      sha256 "eab4e7814d6bd76ec07b662833a0289ecade4b9226efb24b8727459bfc3f3fcc"
+      url "https://github.com/fleetdm/fleet/releases/download/fleet-v4.87.0/fleetctl_v4.87.0_linux_arm64.tar.gz"
+      sha256 "abfe74b1205db855d84089293e83f0da6879e9189b10d00e4b955103fabdb4ca"
     end
   end
 
