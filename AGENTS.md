@@ -12,10 +12,13 @@ Personal Homebrew tap at `computeralex92/homebrew-tap`.
 
 Formulas build from Go source (single URL + SHA), so Renovate can auto-update.
 
-1. Renovate opens a PR with the version + SHA bump, labeled `pr-pull`.
+1. Renovate opens a PR with the version + SHA bump.
 2. `tests.yml` runs `brew test-bot` on ARM macOS and Linux, which compiles the formula and builds bottles.
-3. `publish.yml` triggers on the `pr-pull` label and runs `brew pr-pull`, which pulls the bottle artifacts from CI and merges everything into `main` (via a merge commit that includes both the formula change and the bottle revisions).
-4. The PR branch is deleted automatically.
+3. On CI success, `auto-label-pr-pull.yml` adds the `pr-pull` label.
+4. `publish.yml` triggers on the label and runs `brew pr-pull`, which pulls the bottle artifacts from CI and merges everything into `main` (via a merge commit that includes both the formula change and the bottle revisions).
+5. The PR branch is deleted automatically.
+
+For human PRs that modify a formula: CI will fail with a reminder to add the `pr-pull` label manually after tests pass.
 
 ## Structure
 

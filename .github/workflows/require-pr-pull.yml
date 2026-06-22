@@ -18,6 +18,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            const author = context.payload.pull_request.user.login;
             const hasLabel = context.payload.pull_request.labels
               .some(label => label.name === 'pr-pull');
 
@@ -31,7 +32,7 @@ jobs:
               f.filename.startsWith('Formula/') || f.filename.startsWith('Casks/')
             );
 
-            if (formulaChanged && !hasLabel) {
+            if (formulaChanged && !hasLabel && author !== 'renovate[bot]') {
               core.setFailed(
                 'This PR modifies a formula but is missing the "pr-pull" label. ' +
                 'Add it after CI passes to trigger bottle publishing via brew pr-pull.'
