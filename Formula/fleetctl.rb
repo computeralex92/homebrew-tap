@@ -10,6 +10,12 @@ class Fleetctl < Formula
     regex(/^fleet-v?(\d+(?:\.\d+)+)$/i)
   end
 
+  bottle do
+    root_url "https://ghcr.io/v2/computeralex92/tap"
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_tahoe: "d5a01e735edb332f2ca1c570d79f563a1990639d1364c27d21d145d0e2defb8a"
+  end
+
   depends_on "go" => :build
 
   def install
