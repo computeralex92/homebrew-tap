@@ -5,25 +5,29 @@ Personal Homebrew tap at `computeralex92/homebrew-tap`.
 ## Workflow
 
 - Develop on feature branches, merge to `main` via PR.
-- CI runs on every PR and on push to `main`. Manual runs via `workflow_dispatch`.
+- CI runs on every PR and on push to `main`. Manual runs via `workflow_dispatch` with `formula` input.
+  ```sh
+  gh workflow run tests.yml --ref main -f formula=fleetctl
+  ```
 - Do **not** push directly to `main`.
 
-## Renovate auto-update flow
+## CI / bottle pipeline (`tests.yml`)
 
-Formulas build from Go source (single URL + SHA), so Renovate can auto-update.
-
-1. Renovate opens a PR with the version + SHA bump.
-2. `tests.yml` runs `brew test-bot` on ARM macOS and Linux, which compiles the formula and builds bottles.
-3. Renovate auto-merges the PR when CI passes.
-4. On push to `main`, `tests.yml` runs again with `--publish`, which uploads bottles to GitHub Packages and commits the bottle block to the repo.
+- On **PR**: `brew test-bot --only-formulae` detects changed formulae, builds bottles, uploads as artifacts.
+- On **push to main** (merge commit): extracts formula name via `git diff HEAD~1`, runs `brew test-bot --only-formulae <formula> --publish`.
+- On **workflow_dispatch**: uses `formula` input, runs same publish command.
+- After publish, **macOS runner only** commits the bottle block to the repo via `git commit + push`.
+- Linux runner's bottle is uploaded to registry but *not* committed (race condition prevention). If both platforms need bottle blocks, run twice or merge manually.
+- Use `--only-formulae <formula>` explicitly (not relying on git diff) because `origin/main == HEAD` on push events.
 
 ## Structure
 
 - `Formula/<name>.rb` — formula files (Ruby DSL)
 - `Casks/<name>.rb` — casks (not yet used)
 - `.github/workflows/tests.yml` — CI: brew test-bot on ARM Mac + Linux
-- `.github/workflows/auto-approve.yml` — auto-approves Renovate PRs
 - `.github/renovate.json` — Renovate config (extends `config:recommended`)
+
+**Note:** `auto-approve.yml` was deleted (obsolete) — Renovate uses `platformAutomerge` instead.
 
 ## Local testing
 

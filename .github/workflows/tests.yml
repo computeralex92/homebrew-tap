@@ -81,9 +81,56 @@ jobs:
         env:
           HOMEBREW_DOCKER_REGISTRY_TOKEN: ${{ steps.base64-encode.outputs.token }}
 
-      - name: Commit bottle block
-        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && matrix.os == 'macos-26' && steps.base64-encode.conclusion == 'success'
+      - name: Upload bottle artifacts
+        if: always() && steps.base64-encode.conclusion == 'success'
+        uses: actions/upload-artifact@v7
+        with:
+          name: bottles_${{ matrix.os }}
+          path: '*.bottle.*'
+          if-no-files-found: ignore
+
+  merge-commit:
+    needs: [test-bot]
+    if: ${{ always() && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
+    runs-on: macos-26
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cache Homebrew Bundler RubyGems
+        uses: actions/cache@v5
+        with:
+          path: ${{ steps.set-up-homebrew.outputs.gems-path }}
+          key: merge-rubygems-${{ steps.set-up-homebrew.outputs.gems-hash }}
+          restore-keys: merge-rubygems-
+
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: bottles_*
+          merge-multiple: true
+          path: .
+
+      - name: Merge bottle JSONs and commit
         run: |
+          shopt -s nullglob
+          json_files=(*.bottle.*.json)
+          if [ ${#json_files[@]} -eq 0 ] || [ ! -f "${json_files[0]}" ]; then
+            echo "No bottle JSONs to merge"
+            exit 0
+          fi
+          if [ ${#json_files[@]} -gt 0 ]; then
+            brew bottle --merge --write --no-commit *.bottle.*.json
+          fi
           if ! git status --porcelain Formula/ | grep -q .; then
             echo "No formula changes to commit"
             exit 0
@@ -92,13 +139,6 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
           git add Formula/
-          git commit -m "fleetctl: update bottle block"
+          git commit -m "$(echo ${json_files[0]} | sed 's/--.*//'): update bottle block"
           git pull --rebase origin main
           git push origin main
-
-      - name: Upload bottles as artifact
-        if: always() && github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v7
-        with:
-          name: bottles_${{ matrix.os }}
-          path: '*.bottle.*'
