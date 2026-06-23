@@ -13,12 +13,18 @@ Personal Homebrew tap at `computeralex92/homebrew-tap`.
 
 ## CI / bottle pipeline (`tests.yml`)
 
-- On **PR**: `brew test-bot --only-formulae` detects changed formulae, builds bottles, uploads as artifacts.
-- On **push to main** (merge commit): extracts formula name via `git diff HEAD~1`, runs `brew test-bot --only-formulae <formula> --publish`.
-- On **workflow_dispatch**: uses `formula` input, runs same publish command.
-- After publish, **macOS runner only** commits the bottle block to the repo via `git commit + push`.
-- Linux runner's bottle is uploaded to registry but *not* committed (race condition prevention). If both platforms need bottle blocks, run twice or merge manually.
-- Use `--only-formulae <formula>` explicitly (not relying on git diff) because `origin/main == HEAD` on push events.
+- Both jobs start with `actions/checkout` (`fetch-depth: 0`) — required for `git diff` to work.
+- **Formula detection** is centralized in a `Determine changed formulae` step that outputs `steps.formulae.outputs.formulae`:
+  - **PR**: `git diff origin/${{ github.base_ref }}...HEAD -- Formula/`
+  - **Push**: `git diff HEAD~1 -- Formula/`
+  - **workflow_dispatch**: uses `inputs.formula` directly
+- **PR**: runs `brew test-bot --only-formulae <name> --root-url=...` (no `--publish`), uploads artifacts.
+- **Push / workflow_dispatch**: runs `brew test-bot --only-formulae <name> --root-url=... --publish`, uploads artifacts.
+- **merge-commit** job (macOS only, runs after `test-bot`):
+  - Downloads all bottle artifacts (`bottles_*`).
+  - Merges bottle JSONs via `brew bottle --merge --write --no-commit`.
+  - Extracts formula name from `git diff HEAD~1`.
+  - Commits and pushes with a 3-retry loop to handle race conditions.
 
 ## Structure
 
