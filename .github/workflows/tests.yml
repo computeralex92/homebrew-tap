@@ -30,6 +30,7 @@ jobs:
       pull-requests: read
     steps:
       - name: Check out repository
+        if: runner.os == 'macOS'
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -56,6 +57,14 @@ jobs:
       - name: Determine changed formulae
         id: formulae
         run: |
+          if [ -n "${{ matrix.container }}" ]; then
+            TAP_DIR="$(brew --repo computeralex92/tap)"
+            if [ ! -d "$TAP_DIR" ]; then
+              echo "::error::Tap directory not found: $TAP_DIR"
+              exit 1
+            fi
+            cd "$TAP_DIR" || exit 1
+          fi
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             FORMULAE=$(git diff --name-only "origin/${{ github.base_ref }}"...HEAD -- Formula/ | sed 's|Formula/||;s|\.rb$||')
           elif [ "${{ github.event_name }}" = "push" ]; then
