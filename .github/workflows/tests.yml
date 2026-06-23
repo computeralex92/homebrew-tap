@@ -29,6 +29,11 @@ jobs:
       packages: write
       pull-requests: read
     steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Set up Homebrew
         id: set-up-homebrew
         uses: Homebrew/actions/setup-homebrew@main
@@ -48,8 +53,26 @@ jobs:
 
       - run: brew test-bot --only-tap-syntax
 
+      - name: Determine changed formulae
+        id: formulae
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            FORMULAE=$(git diff --name-only "origin/${{ github.base_ref }}"...HEAD -- Formula/ | sed 's|Formula/||;s|\.rb$||')
+          elif [ "${{ github.event_name }}" = "push" ]; then
+            FORMULAE=$(git diff --name-only HEAD~1 -- Formula/ | sed 's|Formula/||;s|\.rb$||')
+          else
+            FORMULAE="${{ inputs.formula }}"
+          fi
+          if [ -z "$FORMULAE" ]; then
+            echo "No formulae changed"
+            echo "formulae=" >> "${GITHUB_OUTPUT}"
+          else
+            echo "formulae=${FORMULAE}" >> "${GITHUB_OUTPUT}"
+          fi
+
       - name: Base64-encode GITHUB_TOKEN for HOMEBREW_DOCKER_REGISTRY_TOKEN
         id: base64-encode
+        if: steps.formulae.outputs.formulae != ''
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -57,26 +80,20 @@ jobs:
           echo "::add-mask::${base64_token}"
           echo "token=${base64_token}" >> "${GITHUB_OUTPUT}"
 
-      - name: Test formula and build bottles
-        if: github.event_name == 'pull_request'
-        run: brew test-bot --only-formulae --root-url=https://ghcr.io/v2/computeralex92/tap
+      - name: Build and publish bottles
+        if: steps.formulae.outputs.formulae != '' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        run: |
+          for formula in ${{ steps.formulae.outputs.formulae }}; do
+            brew test-bot --only-formulae "$formula" --root-url=https://ghcr.io/v2/computeralex92/tap --publish
+          done
         env:
           HOMEBREW_DOCKER_REGISTRY_TOKEN: ${{ steps.base64-encode.outputs.token }}
 
-      - name: Build and publish bottles
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+      - name: Build bottles (PR)
+        if: steps.formulae.outputs.formulae != '' && github.event_name == 'pull_request'
         run: |
-          if [ "${{ github.event_name }}" = "push" ]; then
-            FORMULAE=$(git diff --name-only "${{ github.event.before }}" HEAD -- Formula/ | sed 's|Formula/||;s|\.rb$||')
-          else
-            FORMULAE="${{ inputs.formula }}"
-          fi
-          if [ -z "$FORMULAE" ]; then
-            echo "No formulae to publish"
-            exit 0
-          fi
-          for formula in $FORMULAE; do
-            brew test-bot --only-formulae "$formula" --root-url=https://ghcr.io/v2/computeralex92/tap --publish
+          for formula in ${{ steps.formulae.outputs.formulae }}; do
+            brew test-bot --only-formulae "$formula" --root-url=https://ghcr.io/v2/computeralex92/tap
           done
         env:
           HOMEBREW_DOCKER_REGISTRY_TOKEN: ${{ steps.base64-encode.outputs.token }}
@@ -111,6 +128,8 @@ jobs:
           restore-keys: merge-rubygems-
 
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/download-artifact@v4
         with:
@@ -126,18 +145,24 @@ jobs:
             echo "No bottle JSONs to merge"
             exit 0
           fi
-          if [ "${#json_files[@]}" -gt 0 ]; then
-            brew bottle --merge --write --no-commit ./*.bottle.*.json
-          fi
+          brew bottle --merge --write --no-commit ./*.bottle.*.json
           if ! git status --porcelain Formula/ | grep -q .; then
             echo "No formula changes to commit"
             exit 0
+          fi
+          formula_name=$(git diff --name-only HEAD~1 -- Formula/ | sed 's|Formula/||;s|\.rb$||' | head -1)
+          if [ -z "$formula_name" ]; then
+            echo "Could not determine formula name from diff"
+            exit 1
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
           git add Formula/
-          formula_name="${json_files[0]%%--*}"
           git commit -m "${formula_name}: update bottle block"
-          git pull --rebase origin main
-          git push origin main
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push origin main && exit 0
+            sleep 2
+          done
+          echo "::error::Failed to push after 3 attempts"
+          exit 1
