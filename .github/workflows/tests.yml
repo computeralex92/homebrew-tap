@@ -169,7 +169,7 @@ jobs:
           git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
           git add Formula/
           git commit -m "${formula_name}: update bottle block"
-          for i in 1 2 3; do
+          for _ in 1 2 3; do
             git pull --rebase origin main && git push origin main && exit 0
             sleep 2
           done
