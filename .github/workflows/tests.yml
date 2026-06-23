@@ -67,7 +67,7 @@ jobs:
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: |
           if [ "${{ github.event_name }}" = "push" ]; then
-            FORMULAE=$(git diff --name-only HEAD~1 HEAD -- Formula/ | sed 's|Formula/||;s|\.rb$||')
+            FORMULAE=$(git diff --name-only "${{ github.event.before }}" HEAD -- Formula/ | sed 's|Formula/||;s|\.rb$||')
           else
             FORMULAE="${{ inputs.formula }}"
           fi
@@ -91,7 +91,7 @@ jobs:
 
   merge-commit:
     needs: [test-bot]
-    if: ${{ always() && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
+    if: ${{ !cancelled() && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
     runs-on: macos-26
     permissions:
       contents: write
@@ -111,8 +111,6 @@ jobs:
           restore-keys: merge-rubygems-
 
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/download-artifact@v4
         with:
@@ -123,13 +121,13 @@ jobs:
       - name: Merge bottle JSONs and commit
         run: |
           shopt -s nullglob
-          json_files=(*.bottle.*.json)
-          if [ ${#json_files[@]} -eq 0 ] || [ ! -f "${json_files[0]}" ]; then
+          json_files=(./*.bottle.*.json)
+          if [ "${#json_files[@]}" -eq 0 ] || [ ! -f "${json_files[0]}" ]; then
             echo "No bottle JSONs to merge"
             exit 0
           fi
-          if [ ${#json_files[@]} -gt 0 ]; then
-            brew bottle --merge --write --no-commit *.bottle.*.json
+          if [ "${#json_files[@]}" -gt 0 ]; then
+            brew bottle --merge --write --no-commit ./*.bottle.*.json
           fi
           if ! git status --porcelain Formula/ | grep -q .; then
             echo "No formula changes to commit"
@@ -139,6 +137,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
           git add Formula/
-          git commit -m "$(echo ${json_files[0]} | sed 's/--.*//'): update bottle block"
+          formula_name="${json_files[0]%%--*}"
+          git commit -m "${formula_name}: update bottle block"
           git pull --rebase origin main
           git push origin main
