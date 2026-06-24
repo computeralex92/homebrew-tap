@@ -1,5 +1,9 @@
 name: CI
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches:
@@ -52,7 +56,7 @@ jobs:
           echo "token=${encoded}" >> "$GITHUB_OUTPUT"
 
       - name: Build and test
-        if: steps.formula.outputs.formula != ''
+        if: steps.formula.outputs.formula != '' && github.event_name == 'pull_request'
         run: |
           brew test-bot --only-formulae "${{ steps.formula.outputs.formula }}" \
             --root-url=https://ghcr.io/v2/computeralex92/tap
