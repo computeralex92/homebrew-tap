@@ -11,29 +11,23 @@ Personal Homebrew tap at `computeralex92/homebrew-tap`.
   ```
 - Do **not** push directly to `main`.
 
-## CI / bottle pipeline (`tests.yml`)
+## CI pipeline (`tests.yml`)
 
-- Both jobs start with `actions/checkout` (`fetch-depth: 0`) — required for `git diff` to work.
-- **Formula detection** is centralized in a `Determine changed formulae` step that outputs `steps.formulae.outputs.formulae`:
+- Single `test` job on `macos-26`.
+- Starts with `actions/checkout` (`fetch-depth: 0`) — required for `git diff`.
+- **Formula detection**: outputs `steps.formula.outputs.formula`:
   - **PR**: `git diff origin/${{ github.base_ref }}...HEAD -- Formula/`
   - **Push**: `git diff HEAD~1 -- Formula/`
   - **workflow_dispatch**: uses `inputs.formula` directly
-- **PR**: runs `brew test-bot --only-formulae <name> --root-url=...` (no `--publish`), uploads artifacts.
-- **Push / workflow_dispatch**: runs `brew test-bot --only-formulae <name> --root-url=... --publish`, uploads artifacts.
-- **merge-commit** job (macOS only, runs after `test-bot`):
-  - Downloads all bottle artifacts (`bottles_*`).
-  - Merges bottle JSONs via `brew bottle --merge --write --no-commit`.
-  - Extracts formula name from `git diff HEAD~1`.
-  - Commits and pushes with a 3-retry loop to handle race conditions.
+- On PR: runs `brew test-bot --only-formulae <name> --root-url=...` (test only).
+- On push / workflow_dispatch: also runs `brew test-bot --only-formulae <name> --root-url=... --publish` (test + publish bottles).
+- Uses `HOMEBREW_DOCKER_REGISTRY_TOKEN` (base64-encoded `GITHUB_TOKEN`) for publishing.
 
 ## Structure
 
 - `Formula/<name>.rb` — formula files (Ruby DSL)
-- `Casks/<name>.rb` — casks (not yet used)
-- `.github/workflows/tests.yml` — CI: brew test-bot on ARM Mac + Linux
+- `.github/workflows/tests.yml` — CI
 - `.github/renovate.json` — Renovate config (extends `config:recommended`)
-
-**Note:** `auto-approve.yml` was deleted (obsolete) — Renovate uses `platformAutomerge` instead.
 
 ## Local testing
 
@@ -53,13 +47,13 @@ git push -u origin <branch>
 **Known quirks:**
 - `brew audit [path]` is disabled — always use `computeralex92/tap/<name>` syntax.
 - `brew install Formula/<name>.rb` is also disabled — tap the local dir first.
-- Only ARM macOS (macos-26) and Linux CI runners are used; Intel macOS was dropped.
-- Go is a build dependency; bottles are built by `brew test-bot` in CI and published on push to `main`.
+- Only ARM macOS (macos-26) runners are used (no Intel macOS, no Linux).
+- Uses prebuilt CLI binaries from Fleet's GitHub releases (no Go build dependency).
 - `fleetctl --version` triggers go-prompt history init (`~/.goquery/history`) which fails in brew test sandbox. Use `assert_predicate bin/"fleetctl", :executable?` in tests to avoid this.
 
 ## Conventions
 
 - Follow Homebrew's Ruby style: two-space indent, no tabs, no trailing whitespace.
 - Every formula must have `desc`, `homepage`, `url`, `sha256`, `version` (or inferred from URL), and `license`.
-- Build from Go source using `depends_on "go" => :build` and `std_go_args`.
+- Use prebuilt binaries from GitHub releases (macOS arm64).
 - Keep `brew audit` clean; suppress only unavoidable warnings with an inline comment.
