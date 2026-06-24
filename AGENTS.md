@@ -34,7 +34,7 @@ Personal Homebrew tap at `computeralex92/homebrew-tap`.
 ```sh
 git checkout -b <branch>
 # make changes
-brew tap computeralex92/tap "$PWD"      # register the local checkout as a tap
+brew tap computeralex92/tap "file://$PWD"  # register the local checkout as a tap
 brew style Formula/<name>.rb            # lint (still accepts file paths)
 brew audit --strict --online computeralex92/tap/<name>  # audit by tap name
 brew test computeralex92/tap/<name>     # test after installing
