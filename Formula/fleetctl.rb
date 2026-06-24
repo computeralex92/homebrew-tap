@@ -1,8 +1,8 @@
 class Fleetctl < Formula
   desc "Command-line interface for Fleet Device Management"
   homepage "https://fleetdm.com"
-  url "https://github.com/fleetdm/fleet/archive/refs/tags/fleet-v4.87.0.tar.gz"
-  sha256 "e936c930ae08e564488b677317507fc8c24ccfeaa01c5be9a16842c6fe884c61"
+  url "https://github.com/fleetdm/fleet/releases/download/fleet-v4.87.0/fleetctl_v4.87.0_macos.tar.gz"
+  sha256 "e120376970999454621c8681dd93e5550a8abc215cdaf0fc829e4fdf6920c721"
   license "MIT"
 
   livecheck do
@@ -10,16 +10,8 @@ class Fleetctl < Formula
     regex(/^fleet-v?(\d+(?:\.\d+)+)$/i)
   end
 
-  bottle do
-    root_url "https://ghcr.io/v2/computeralex92/tap"
-    rebuild 1
-    sha256 cellar: :any_skip_relocation, arm64_tahoe: "d5a01e735edb332f2ca1c570d79f563a1990639d1364c27d21d145d0e2defb8a"
-  end
-
-  depends_on "go" => :build
-
   def install
-    system "go", "build", *std_go_args(ldflags: "-s -w"), "./cmd/fleetctl"
+    bin.install "fleetctl"
   end
 
   test do
