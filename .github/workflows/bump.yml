@@ -21,12 +21,14 @@ jobs:
           CURRENT=$(sed -n 's/.*fleetctl_v\([0-9.]*\)_macos.*/\1/p' "Formula/${FORMULA}.rb")
           LATEST=$(curl -sL https://api.github.com/repos/fleetdm/fleet/releases/latest \
             | jq -r '.tag_name' | sed 's/^fleet-v//')
-          echo "formula=${FORMULA}" >> "$GITHUB_OUTPUT"
-          echo "current=${CURRENT}" >> "$GITHUB_OUTPUT"
-          echo "latest=${LATEST}" >> "$GITHUB_OUTPUT"
-          if [ "$CURRENT" != "$LATEST" ]; then
-            echo "updated=true" >> "$GITHUB_OUTPUT"
-          fi
+          {
+            echo "formula=${FORMULA}"
+            echo "current=${CURRENT}"
+            echo "latest=${LATEST}"
+            if [ "$CURRENT" != "$LATEST" ]; then
+              echo "updated=true"
+            fi
+          } >> "$GITHUB_OUTPUT"
 
       - name: Update formula
         if: steps.check.outputs.updated == 'true'
