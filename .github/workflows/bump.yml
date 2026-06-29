@@ -13,45 +13,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: Homebrew/actions/setup-homebrew@main
-
-      - name: Check for newer version
-        id: check
-        run: |
-          FORMULA=fleetctl
-          CURRENT=$(sed -n 's/.*fleetctl_v\([0-9.]*\)_macos.*/\1/p' "Formula/${FORMULA}.rb")
-          LATEST=$(curl -sL https://api.github.com/repos/fleetdm/fleet/releases/latest \
-            | jq -r '.tag_name' | sed 's/^fleet-v//')
-          {
-            echo "formula=${FORMULA}"
-            echo "current=${CURRENT}"
-            echo "latest=${LATEST}"
-            if [ "$CURRENT" != "$LATEST" ]; then
-              echo "updated=true"
-            fi
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Update formula
-        if: steps.check.outputs.updated == 'true'
-        run: |
-          brew bump-formula-pr \
-            --write --no-fork --no-browse \
-            --no-audit --no-style \
-            --version="${{ steps.check.outputs.latest }}" \
-            "${{ steps.check.outputs.formula }}"
-        env:
-          HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create Pull Request
-        if: steps.check.outputs.updated == 'true'
-        run: |
-          VERSION="${{ steps.check.outputs.latest }}"
-          FORMULA="${{ steps.check.outputs.formula }}"
-          BRANCH="bump-${FORMULA}-${VERSION}"
-          git checkout -b "$BRANCH"
-          git add Formula/
-          git commit -m "${FORMULA} ${VERSION}"
-          git push origin "$BRANCH"
-          gh pr create \
-            --title "${FORMULA} ${VERSION}" \
-            --body "Automated bump to \`${FORMULA} ${VERSION}\` via \`brew bump-formula-pr\`." \
-            --base main
+      - uses: Homebrew/actions/bump-packages@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          formulae: fleetctl
+          fork: false

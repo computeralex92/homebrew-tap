@@ -26,9 +26,9 @@ Personal Homebrew tap at `computeralex92/homebrew-tap`.
 ## Auto-bump pipeline (`bump.yml`)
 
 - Runs daily at 06:00 UTC and on `workflow_dispatch`.
-- Compares the current formula version (from `url`) against Fleet's latest GitHub release via `jq`.
-- If newer, runs `brew bump-formula-pr --write` to update URL + sha256.
-- Commits to a branch and creates a PR via `gh`.
+- Uses `Homebrew/actions/bump-packages` which calls `brew bump --open-pr` under the hood.
+- Auto-detects new versions via `livecheck` — no manual version comparison needed.
+- With `fork: false`, commits and opens a PR directly in this repo.
 - Manual trigger: `gh workflow run bump.yml --ref main`
 
 ## Structure
