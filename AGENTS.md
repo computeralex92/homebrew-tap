@@ -23,11 +23,20 @@ Personal Homebrew tap at `computeralex92/homebrew-tap`.
 - On push / workflow_dispatch: also runs `brew test-bot --only-formulae <name> --root-url=... --publish` (test + publish bottles).
 - Uses `HOMEBREW_DOCKER_REGISTRY_TOKEN` (base64-encoded `GITHUB_TOKEN`) for publishing.
 
+## Auto-bump pipeline (`bump.yml`)
+
+- Runs daily at 06:00 UTC and on `workflow_dispatch`.
+- Compares the current formula version (from `url`) against Fleet's latest GitHub release via `jq`.
+- If newer, runs `brew bump-formula-pr --write` to update URL + sha256.
+- Commits to a branch and creates a PR via `gh`.
+- Manual trigger: `gh workflow run bump.yml --ref main`
+
 ## Structure
 
 - `Formula/<name>.rb` — formula files (Ruby DSL)
 - `.github/workflows/tests.yml` — CI
-- `.github/renovate.json` — Renovate config (extends `config:recommended`)
+- `.github/renovate.json` — Renovate config (GitHub Actions updates only; Homebrew disabled)
+- `.github/workflows/bump.yml` — Scheduled auto-bump via `brew bump-formula-pr`
 
 ## Local testing
 
