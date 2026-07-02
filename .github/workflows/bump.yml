@@ -12,9 +12,34 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v7
+
+      - name: Set bot git identity
+        run: |
+          git config user.name "computeralex92-bot"
+          git config user.email "computeralex92+bot@users.noreply.github.com"
+
       - uses: Homebrew/actions/setup-homebrew@main
+
       - uses: Homebrew/actions/bump-packages@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           formulae: fleetctl
           fork: false
+
+      - name: Enable auto-merge on bump PR
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_NUMBER=$(gh pr list \
+            --author "github-actions[bot]" \
+            --state open \
+            --json number,headRefName \
+            --jq '.[] | select(.headRefName | startswith("bump-fleetctl")) | .number' \
+            | head -1)
+          if [ -n "$PR_NUMBER" ]; then
+            gh pr merge "$PR_NUMBER" --auto --squash
+            echo "Enabled auto-merge on PR #$PR_NUMBER"
+          else
+            echo "No bump PR found, skipping auto-merge"
+          fi

@@ -29,6 +29,9 @@ Personal Homebrew tap at `computeralex92/homebrew-tap`.
 - Uses `Homebrew/actions/bump-packages` which calls `brew bump --open-pr` under the hood.
 - Auto-detects new versions via `livecheck` — no manual version comparison needed.
 - With `fork: false`, commits and opens a PR directly in this repo.
+- Commits use a dedicated bot identity (`computeralex92-bot` / `computeralex92+bot@users.noreply.github.com`) to distinguish pipeline commits from manual ones.
+- After creating a PR, auto-merge (`--squash`) is enabled so the PR merges as soon as CI passes.
+- For auto-merge to wait for CI, the `test` job in `tests.yml` must be configured as a **required check** in branch protection rules on `main`.
 - Manual trigger: `gh workflow run bump.yml --ref main`
 
 ## Structure
