@@ -13,7 +13,8 @@ Personal Homebrew tap at `computeralex92/homebrew-tap`.
 
 ## CI pipeline (`tests.yml`)
 
-- Single `test` job on `macos-26`.
+- Matrix with 3 runners: `macos-26` (macOS ARM), `macos-26-intel` (macOS Intel), `ubuntu-24.04` (Linux x86_64).
+- `fail-fast: false` so other arches continue if one fails.
 - Starts with `actions/checkout` (`fetch-depth: 0`) — required for `git diff`.
 - **Formula detection**: outputs `steps.formula.outputs.formula`:
   - **PR**: `git diff origin/${{ github.base_ref }}...HEAD -- Formula/`
@@ -31,7 +32,7 @@ Personal Homebrew tap at `computeralex92/homebrew-tap`.
 - With `fork: false`, commits and opens a PR directly in this repo.
 - Commits use a dedicated bot identity (`computeralex92-bot` / `computeralex92+bot@users.noreply.github.com`) to distinguish pipeline commits from manual ones.
 - After creating a PR, auto-merge (`--squash`) is enabled so the PR merges as soon as CI passes.
-- For auto-merge to wait for CI, the `test` job in `tests.yml` must be configured as a **required check** in branch protection rules on `main`.
+- For auto-merge to wait for CI, all three matrix jobs (`test (macos-26)`, `test (macos-26-intel)`, `test (ubuntu-24.04)`) must be configured as **required checks** in branch protection rules on `main`.
 - Manual trigger: `gh workflow run bump.yml --ref main`
 
 ## Structure
@@ -59,13 +60,12 @@ git push -u origin <branch>
 **Known quirks:**
 - `brew audit [path]` is disabled — always use `computeralex92/tap/<name>` syntax.
 - `brew install Formula/<name>.rb` is also disabled — tap the local dir first.
-- Only ARM macOS (macos-26) runners are used (no Intel macOS, no Linux).
 - Uses prebuilt CLI binaries from Fleet's GitHub releases (no Go build dependency).
 - `fleetctl --version` triggers go-prompt history init (`~/.goquery/history`) which fails in brew test sandbox. Use `assert_predicate bin/"fleetctl", :executable?` in tests to avoid this.
 
 ## Conventions
 
 - Follow Homebrew's Ruby style: two-space indent, no tabs, no trailing whitespace.
-- Every formula must have `desc`, `homepage`, `url`, `sha256`, `version` (or inferred from URL), and `license`.
-- Use prebuilt binaries from GitHub releases (macOS arm64).
+- Every formula must have `desc`, `homepage`, `url`, `sha256`, and `license`.
+- Use prebuilt binaries from GitHub releases (macOS universal, Linux amd64, Linux arm64).
 - Keep `brew audit` clean; suppress only unavoidable warnings with an inline comment.

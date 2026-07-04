@@ -18,7 +18,17 @@ on:
 
 jobs:
   test:
-    runs-on: macos-26
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-26
+            name: macOS ARM
+          - os: macos-26-intel
+            name: macOS Intel
+          - os: ubuntu-24.04
+            name: Linux x86_64
+    runs-on: ${{ matrix.os }}
     permissions:
       contents: write
       packages: write
