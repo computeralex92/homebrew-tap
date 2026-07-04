@@ -32,7 +32,7 @@ Personal Homebrew tap at `computeralex92/homebrew-tap`.
 - With `fork: false`, commits and opens a PR directly in this repo.
 - Commits use a dedicated bot identity (`computeralex92-bot` / `computeralex92+bot@users.noreply.github.com`) to distinguish pipeline commits from manual ones.
 - After creating a PR, auto-merge (`--squash`) is enabled so the PR merges as soon as CI passes.
-- For auto-merge to wait for CI, the `test` job in `tests.yml` must be configured as a **required check** in branch protection rules on `main`.
+- For auto-merge to wait for CI, all three matrix jobs (`test (macos-26)`, `test (macos-26-intel)`, `test (ubuntu-24.04)`) must be configured as **required checks** in branch protection rules on `main`.
 - Manual trigger: `gh workflow run bump.yml --ref main`
 
 ## Structure
