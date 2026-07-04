@@ -13,7 +13,7 @@ Personal Homebrew tap at `computeralex92/homebrew-tap`.
 
 ## CI pipeline (`tests.yml`)
 
-- Matrix with 3 runners: `macos-26` (macOS ARM), `macos-13` (macOS Intel), `ubuntu-24.04` (Linux x86_64).
+- Matrix with 3 runners: `macos-26` (macOS ARM), `macos-26-intel` (macOS Intel), `ubuntu-24.04` (Linux x86_64).
 - `fail-fast: false` so other arches continue if one fails.
 - Starts with `actions/checkout` (`fetch-depth: 0`) — required for `git diff`.
 - **Formula detection**: outputs `steps.formula.outputs.formula`:
@@ -66,6 +66,6 @@ git push -u origin <branch>
 ## Conventions
 
 - Follow Homebrew's Ruby style: two-space indent, no tabs, no trailing whitespace.
-- Every formula must have `desc`, `homepage`, `url`, `sha256`, `version` (or inferred from URL), and `license`.
+- Every formula must have `desc`, `homepage`, `url`, `sha256`, and `license`.
 - Use prebuilt binaries from GitHub releases (macOS universal, Linux amd64, Linux arm64).
 - Keep `brew audit` clean; suppress only unavoidable warnings with an inline comment.
