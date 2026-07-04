@@ -13,7 +13,8 @@ Personal Homebrew tap at `computeralex92/homebrew-tap`.
 
 ## CI pipeline (`tests.yml`)
 
-- Single `test` job on `macos-26`.
+- Matrix with 3 runners: `macos-26` (macOS ARM), `macos-13` (macOS Intel), `ubuntu-24.04` (Linux x86_64).
+- `fail-fast: false` so other arches continue if one fails.
 - Starts with `actions/checkout` (`fetch-depth: 0`) — required for `git diff`.
 - **Formula detection**: outputs `steps.formula.outputs.formula`:
   - **PR**: `git diff origin/${{ github.base_ref }}...HEAD -- Formula/`
@@ -59,7 +60,6 @@ git push -u origin <branch>
 **Known quirks:**
 - `brew audit [path]` is disabled — always use `computeralex92/tap/<name>` syntax.
 - `brew install Formula/<name>.rb` is also disabled — tap the local dir first.
-- Only ARM macOS (macos-26) runners are used (no Intel macOS, no Linux).
 - Uses prebuilt CLI binaries from Fleet's GitHub releases (no Go build dependency).
 - `fleetctl --version` triggers go-prompt history init (`~/.goquery/history`) which fails in brew test sandbox. Use `assert_predicate bin/"fleetctl", :executable?` in tests to avoid this.
 
@@ -67,5 +67,5 @@ git push -u origin <branch>
 
 - Follow Homebrew's Ruby style: two-space indent, no tabs, no trailing whitespace.
 - Every formula must have `desc`, `homepage`, `url`, `sha256`, `version` (or inferred from URL), and `license`.
-- Use prebuilt binaries from GitHub releases (macOS arm64).
+- Use prebuilt binaries from GitHub releases (macOS universal, Linux amd64, Linux arm64).
 - Keep `brew audit` clean; suppress only unavoidable warnings with an inline comment.
