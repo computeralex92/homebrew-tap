@@ -1,0 +1,28 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=500]
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: no-commit-to-branch
+        args: [--branch, main]
+
+  - repo: local
+    hooks:
+      - id: brew-style
+        name: brew style
+        entry: brew style
+        language: system
+        files: \.rb$
+      - id: brew-audit
+        name: brew audit
+        entry: bash -c 'for f in "$@"; do brew audit --strict --formula "$(basename "$f" .rb)" || exit 1; done' -
+        language: system
+        files: ^Formula/.*\.rb$
