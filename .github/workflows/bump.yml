@@ -23,7 +23,7 @@ jobs:
       - uses: Homebrew/actions/bump-packages@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          formulae: fleetctl
+          formulae: fleetctl ingress-nginx-migration
           fork: false
 
       - name: Enable auto-merge on bump PR
