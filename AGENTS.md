@@ -8,6 +8,7 @@ Personal Homebrew tap at `computeralex92/homebrew-tap`.
 - CI runs on every PR and on push to `main`. Manual runs via `workflow_dispatch` with `formula` input.
   ```sh
   gh workflow run tests.yml --ref main -f formula=fleetctl
+  gh workflow run tests.yml --ref main -f formula=ingress-nginx-migration
   ```
 - Do **not** push directly to `main`.
 
@@ -60,12 +61,11 @@ git push -u origin <branch>
 **Known quirks:**
 - `brew audit [path]` is disabled — always use `computeralex92/tap/<name>` syntax.
 - `brew install Formula/<name>.rb` is also disabled — tap the local dir first.
-- Uses prebuilt CLI binaries from Fleet's GitHub releases (no Go build dependency).
-- `fleetctl --version` triggers go-prompt history init (`~/.goquery/history`) which fails in brew test sandbox. Use `assert_predicate bin/"fleetctl", :executable?` in tests to avoid this.
+- Use `assert_predicate bin/"<name>", :executable?` in tests to avoid running the binary in the sandbox (e.g. `fleetctl --version` triggers go-prompt history init which fails in brew test sandbox).
 
 ## Conventions
 
 - Follow Homebrew's Ruby style: two-space indent, no tabs, no trailing whitespace.
 - Every formula must have `desc`, `homepage`, `url`, `sha256`, and `license`.
-- Use prebuilt binaries from GitHub releases (macOS universal, Linux amd64, Linux arm64).
+- Use prebuilt binaries from GitHub releases (macOS ARM/Intel, Linux amd64/arm64).
 - Keep `brew audit` clean; suppress only unavoidable warnings with an inline comment.
