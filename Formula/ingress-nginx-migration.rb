@@ -2,6 +2,7 @@ class IngressNginxMigration < Formula
   desc "Tool to migrate from ingress-nginx to Traefik"
   homepage "https://github.com/traefik/ingress-nginx-migration"
   url "https://github.com/traefik/ingress-nginx-migration/releases/download/v1.2.1/ingress-nginx-migration-v1.2.1-darwin-arm64.tar.gz"
+  version "1.2.1"
   sha256 "f5ba92c6cb695a712df5c038062b65afcdbe2c279d6fd444cda2c255b4d2a6a1"
   license "Apache-2.0"
 
