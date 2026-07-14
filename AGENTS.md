@@ -14,7 +14,7 @@ Personal Homebrew tap at `computeralex92/homebrew-tap`.
 
 ## CI pipeline (`tests.yml`)
 
-- Matrix with 3 runners: `macos-26` (macOS ARM), `macos-26-intel` (macOS Intel), `ubuntu-24.04` (Linux x86_64).
+- Matrix with 2 runners: `macos-26` (macOS ARM), `macos-26-intel` (macOS Intel).
 - `fail-fast: false` so other arches continue if one fails.
 - Starts with `actions/checkout` (`fetch-depth: 0`) — required for `git diff`.
 - **Formula detection**: outputs `steps.formula.outputs.formula`:
@@ -33,7 +33,7 @@ Personal Homebrew tap at `computeralex92/homebrew-tap`.
 - With `fork: false`, commits and opens a PR directly in this repo.
 - Commits use a dedicated bot identity (`computeralex92-bot` / `computeralex92+bot@users.noreply.github.com`) to distinguish pipeline commits from manual ones.
 - After creating a PR, auto-merge (`--squash`) is enabled so the PR merges as soon as CI passes.
-- For auto-merge to wait for CI, all three matrix jobs (`test (macos-26)`, `test (macos-26-intel)`, `test (ubuntu-24.04)`) must be configured as **required checks** in branch protection rules on `main`.
+- For auto-merge to wait for CI, both matrix jobs (`test (macos-26)`, `test (macos-26-intel)`) must be configured as **required checks** in branch protection rules on `main`.
 - Manual trigger: `gh workflow run bump.yml --ref main`
 
 ## Structure
@@ -67,5 +67,5 @@ git push -u origin <branch>
 
 - Follow Homebrew's Ruby style: two-space indent, no tabs, no trailing whitespace.
 - Every formula must have `desc`, `homepage`, `url`, `sha256`, and `license`.
-- Use prebuilt binaries from GitHub releases (macOS ARM/Intel, Linux amd64/arm64).
+- Use prebuilt binaries from GitHub releases (macOS ARM/Intel).
 - Keep `brew audit` clean; suppress only unavoidable warnings with an inline comment.
