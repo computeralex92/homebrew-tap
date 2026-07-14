@@ -54,7 +54,7 @@ jobs:
         if: steps.formula.outputs.formulae != '' && github.event_name == 'pull_request'
         run: |
           for formula in ${{ steps.formula.outputs.formulae }}; do
-            brew test-bot --only-formulae "$formula" \
+            brew test-bot --skip-dependents --only-formulae "$formula" \
               --root-url=https://ghcr.io/v2/computeralex92/tap
             rm -f ./*.bottle.* 2>/dev/null || true
           done
@@ -63,7 +63,7 @@ jobs:
         if: steps.formula.outputs.formulae != '' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         run: |
           for formula in ${{ steps.formula.outputs.formulae }}; do
-            brew test-bot --only-formulae "$formula" \
+            brew test-bot --skip-dependents --only-formulae "$formula" \
               --root-url=https://ghcr.io/v2/computeralex92/tap
             rm -f ./*.bottle.* 2>/dev/null || true
           done
