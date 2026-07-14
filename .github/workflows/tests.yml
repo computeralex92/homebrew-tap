@@ -56,6 +56,7 @@ jobs:
           for formula in ${{ steps.formula.outputs.formulae }}; do
             brew test-bot --only-formulae "$formula" \
               --root-url=https://ghcr.io/v2/computeralex92/tap
+            rm -f ./*.bottle.* 2>/dev/null || true
           done
 
       - name: Test on push
@@ -64,4 +65,5 @@ jobs:
           for formula in ${{ steps.formula.outputs.formulae }}; do
             brew test-bot --only-formulae "$formula" \
               --root-url=https://ghcr.io/v2/computeralex92/tap
+            rm -f ./*.bottle.* 2>/dev/null || true
           done
