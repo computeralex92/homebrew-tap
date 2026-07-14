@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
     inputs:
       formula:
-        description: Formula to build and publish
+        description: Formula to test
         required: false
         type: string
 
@@ -29,52 +29,39 @@ jobs:
     runs-on: ${{ matrix.os }}
     permissions:
       contents: write
-      packages: write
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - uses: Homebrew/actions/setup-homebrew@main
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - run: brew test-bot --only-tap-syntax
 
-      - name: Determine changed formula
+      - name: Determine changed formulae
         id: formula
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            FORMULA=$(git diff --name-only "origin/${{ github.base_ref }}"...HEAD -- Formula/ | sed 's|Formula/||;s|\.rb$||' | head -1)
+            FORMULAE=$(git diff --name-only "origin/${{ github.base_ref }}"...HEAD -- Formula/ | sed 's|Formula/||;s|\.rb$||' | tr '\n' ' ')
           elif [ "${{ github.event_name }}" = "push" ]; then
-            FORMULA=$(git diff --name-only HEAD~1 -- Formula/ | sed 's|Formula/||;s|\.rb$||' | head -1)
+            FORMULAE=$(git diff --name-only HEAD~1 -- Formula/ | sed 's|Formula/||;s|\.rb$||' | tr '\n' ' ')
           else
-            FORMULA="${{ inputs.formula }}"
+            FORMULAE="${{ inputs.formula }}"
           fi
-          echo "formula=${FORMULA}" >> "$GITHUB_OUTPUT"
-
-      - name: Base64-encode GITHUB_TOKEN for registry
-        id: token
-        if: steps.formula.outputs.formula != ''
-        env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          encoded=$(echo -n "${TOKEN}" | base64 | tr -d "\n")
-          echo "::add-mask::${encoded}"
-          echo "token=${encoded}" >> "$GITHUB_OUTPUT"
+          echo "formulae=${FORMULAE}" >> "$GITHUB_OUTPUT"
 
       - name: Build and test
-        if: steps.formula.outputs.formula != '' && github.event_name == 'pull_request'
+        if: steps.formula.outputs.formulae != '' && github.event_name == 'pull_request'
         run: |
-          brew test-bot --only-formulae "${{ steps.formula.outputs.formula }}" \
-            --root-url=https://ghcr.io/v2/computeralex92/tap
-        env:
-          HOMEBREW_DOCKER_REGISTRY_TOKEN: ${{ steps.token.outputs.token }}
+          for formula in ${{ steps.formula.outputs.formulae }}; do
+            brew test-bot --only-formulae "$formula" \
+              --root-url=https://ghcr.io/v2/computeralex92/tap
+          done
 
-      - name: Publish on push
-        if: steps.formula.outputs.formula != '' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+      - name: Test on push
+        if: steps.formula.outputs.formulae != '' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         run: |
-          brew test-bot --only-formulae "${{ steps.formula.outputs.formula }}" \
-            --root-url=https://ghcr.io/v2/computeralex92/tap --publish
-        env:
-          HOMEBREW_DOCKER_REGISTRY_TOKEN: ${{ steps.token.outputs.token }}
+          for formula in ${{ steps.formula.outputs.formulae }}; do
+            brew test-bot --only-formulae "$formula" \
+              --root-url=https://ghcr.io/v2/computeralex92/tap
+          done

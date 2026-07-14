@@ -17,13 +17,11 @@ Personal Homebrew tap at `computeralex92/homebrew-tap`.
 - Matrix with 2 runners: `macos-26` (macOS ARM), `macos-26-intel` (macOS Intel).
 - `fail-fast: false` so other arches continue if one fails.
 - Starts with `actions/checkout` (`fetch-depth: 0`) — required for `git diff`.
-- **Formula detection**: outputs `steps.formula.outputs.formula`:
+- **Formula detection**: outputs `steps.formula.outputs.formulae` (space-separated):
   - **PR**: `git diff origin/${{ github.base_ref }}...HEAD -- Formula/`
   - **Push**: `git diff HEAD~1 -- Formula/`
   - **workflow_dispatch**: uses `inputs.formula` directly
-- On PR: runs `brew test-bot --only-formulae <name> --root-url=...` (test only).
-- On push / workflow_dispatch: also runs `brew test-bot --only-formulae <name> --root-url=... --publish` (test + publish bottles).
-- Uses `HOMEBREW_DOCKER_REGISTRY_TOKEN` (base64-encoded `GITHUB_TOKEN`) for publishing.
+- Runs `brew test-bot --only-formulae <name> --root-url=...` for each changed formula on both PR and push.
 
 ## Auto-bump pipeline (`bump.yml`)
 
