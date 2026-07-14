@@ -19,17 +19,6 @@ class IngressNginxMigration < Formula
     end
   end
 
-  on_linux do
-    on_intel do
-      url "https://github.com/traefik/ingress-nginx-migration/releases/download/v1.2.1/ingress-nginx-migration-v1.2.1-linux-amd64.tar.gz"
-      sha256 "f9e674b28164f965744d5ffb70c2ab97a4c15b937becb904973dd8a230860380"
-    end
-    on_arm do
-      url "https://github.com/traefik/ingress-nginx-migration/releases/download/v1.2.1/ingress-nginx-migration-v1.2.1-linux-arm64.tar.gz"
-      sha256 "a2382ff16a5bd38227d68395bae80fcaac2c393a57a447bb7ed0961a3ed52324"
-    end
-  end
-
   def install
     bin.install "ingress-nginx-migration"
   end
