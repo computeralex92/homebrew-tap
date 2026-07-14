@@ -45,9 +45,9 @@ jobs:
         id: formula
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            FORMULA=$(git diff --name-only "origin/${{ github.base_ref }}"...HEAD -- Formula/ | sed 's|Formula/||;s|\.rb$||' | paste -sd ' ' -)
+            FORMULA=$(git diff --name-only "origin/${{ github.base_ref }}"...HEAD -- Formula/ | sed 's|Formula/||;s|\.rb$||' | head -1)
           elif [ "${{ github.event_name }}" = "push" ]; then
-            FORMULA=$(git diff --name-only HEAD~1 -- Formula/ | sed 's|Formula/||;s|\.rb$||' | paste -sd ' ' -)
+            FORMULA=$(git diff --name-only HEAD~1 -- Formula/ | sed 's|Formula/||;s|\.rb$||' | head -1)
           else
             FORMULA="${{ inputs.formula }}"
           fi
