@@ -22,17 +22,17 @@ jobs:
 
       - uses: Homebrew/actions/bump-packages@main
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.BUMP_BOT_TOKEN }}
           formulae: fleetctl ingress-nginx-migration
           fork: false
 
       - name: Enable auto-merge on bump PR
         if: success()
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.BUMP_BOT_TOKEN }}
         run: |
           PR_NUMBER=$(gh pr list \
-            --author "github-actions[bot]" \
+            --author "computeralex92" \
             --state open \
             --json number,headRefName \
             --jq '.[] | select(.headRefName | startswith("bump-fleetctl")) | .number' \
