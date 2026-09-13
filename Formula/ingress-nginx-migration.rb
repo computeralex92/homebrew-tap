@@ -12,10 +12,7 @@ class IngressNginxMigration < Formula
   end
 
   on_macos do
-    on_intel do
-      url "https://github.com/traefik/ingress-nginx-migration/releases/download/v1.2.1/ingress-nginx-migration-v1.2.1-darwin-amd64.tar.gz"
-      sha256 "eb32a29724fce2a1b132132577b38bca3eb3561820780c0d54ddf8014ac04a33"
-    end
+    depends_on arch: :arm64
   end
 
   def install

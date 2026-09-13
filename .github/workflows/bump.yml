@@ -18,9 +18,9 @@ jobs:
           git config user.name "computeralex92-bot"
           git config user.email "computeralex92+bot@users.noreply.github.com"
 
-      - uses: Homebrew/actions/setup-homebrew@main
+      - uses: Homebrew/actions/setup-homebrew@1e34f2e2acaa766b7efacb8c26352e6abbb023f9 # 2026.09.13.1
 
-      - uses: Homebrew/actions/bump-packages@main
+      - uses: Homebrew/actions/bump-packages@1e34f2e2acaa766b7efacb8c26352e6abbb023f9 # 2026.09.13.1
         with:
           token: ${{ secrets.BUMP_BOT_TOKEN }}
           formulae: fleetctl ingress-nginx-migration

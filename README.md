@@ -12,16 +12,24 @@ Personal Homebrew tap.
 
 ```sh
 brew tap computeralex92/tap
+brew trust --formula computeralex92/tap/fleetctl
+brew trust --formula computeralex92/tap/ingress-nginx-migration
 brew install fleetctl
 brew install ingress-nginx-migration
 ```
 
-Or directly:
+Or directly (trusts only the formula being installed):
 
 ```sh
 brew install computeralex92/tap/fleetctl
 brew install computeralex92/tap/ingress-nginx-migration
 ```
+
+> **Note:** Homebrew 6.0.0+ requires non-official taps to be explicitly trusted
+> before their code is loaded. Installing a fully qualified formula
+> (`user/tap/formula`) trusts only that formula; installing by short name after
+> `brew tap` requires `brew trust` first. To trust the whole tap instead, run
+> `brew trust computeralex92/tap`.
 
 ## Available formulae
 
