@@ -1,8 +1,8 @@
 class Fleetctl < Formula
   desc "Command-line interface for Fleet Device Management"
   homepage "https://fleetdm.com"
-  url "https://github.com/fleetdm/fleet/releases/download/fleet-v4.92.0/fleetctl_v4.92.0_macos.tar.gz"
-  sha256 "e4d8ccbe4303e794c0efa322d537bd418d992ec4a13db5e79077987e9099dcc9"
+  url "https://github.com/fleetdm/fleet/releases/download/fleet-v4.92.1/fleetctl_v4.92.1_macos.tar.gz"
+  sha256 "daf5ac5e5eba524054fcc43733efdefed313c43333d5187f7a38005e87594a43"
   license "MIT"
 
   livecheck do
